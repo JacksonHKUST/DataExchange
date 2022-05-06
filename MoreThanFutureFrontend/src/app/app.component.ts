@@ -7,7 +7,7 @@ import { ContractService } from './services/contract.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'MoreThanFutureFrontend';
+  // title = 'MoreThanFutureFrontend';
 
   constructor(private contractService:ContractService) {
     
@@ -23,5 +23,14 @@ export class AppComponent {
   //   this.contractService.printApi()
   // }
 
-  
+  buyData(){
+    console.log(`Calling buyData`)
+    this.contractService.purchaseData()
+  }
+
+  uploadData(){
+    console.log(`Upload Data`);
+    this.contractService.uploadData()
+    
+  }
 }
