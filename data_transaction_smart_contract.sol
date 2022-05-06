@@ -23,8 +23,8 @@ contract data_transaction {
     mapping(uint => ML_API_key) ML_API_keys;
     mapping(string => ml_status) ML_purchase_status; 
     uint last_id;
-    uint ml_purchase_fee = 2;
-    address administrator = 0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59;
+    uint ml_purchase_fee = 1 wei;
+    address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
     
     function uploadData(string memory data_hash, uint price, bool purchase_ML) public {
         data_map[last_id] = data(data_hash, msg.sender, price);
@@ -46,8 +46,8 @@ contract data_transaction {
     }
 
     function purchaseData(uint data_id) public returns (string memory) {
-        payable(data_map[data_id].seller).transfer(data_map[data_id].price*0.9);
-        payable(administrator).transfer(data_map[data_id].price*0.1);
+        payable(data_map[data_id].seller).transfer(data_map[data_id].price);
+        payable(administrator).transfer(data_map[data_id].price);
         return data_map[data_id].dataHash;
     }
     
@@ -66,7 +66,7 @@ contract data_transaction {
         if(msg.sender==ML_purchase_status[data_hash].seller){
             return ML_purchase_status[data_hash].isMLService;
         }
-        return "You don't have the access!"
+        return false;
     }
     
     //For our team to view data hash of any data_id stored in our front-end
