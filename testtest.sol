@@ -23,16 +23,17 @@ contract data_transaction {
     mapping(uint => ML_API_key) ML_API_keys;
     mapping(string => ml_status) ML_purchase_status; 
     uint last_id;
-    uint ml_purchase_fee = 2;
-    address administrator = 0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59;
+    uint ml_purchase_fee = 1 wei;
+    address administrator = 0xc834E96DD8788Ce1702c589dd56cA7415a041177;
     
     function uploadData(string memory data_hash, uint price, bool purchase_ML) public {
         data_map[last_id] = data(data_hash, msg.sender, price);
 
         if (purchase_ML == true) {
-            ML_purchase_status[data_hash].isMLService = true;
-            ML_purchase_status[data_hash].seller = msg.sender;
+            ML_purchase_status[data_hash] = ml_status(true, msg.sender);
             payable(administrator).transfer(ml_purchase_fee);
+        } else {
+            ML_purchase_status[data_hash] = ml_status(false, msg.sender);
         }
 
         last_id += 1;
@@ -40,6 +41,7 @@ contract data_transaction {
 
     function activate_ML_service(string memory data_hash) public {
         if (ML_purchase_status[data_hash].seller == msg.sender) {
+            require(tx.origin==msg.sender);
             payable(administrator).transfer(ml_purchase_fee);
             ML_purchase_status[data_hash].isMLService = true;
         }
@@ -63,7 +65,7 @@ contract data_transaction {
 
     //For sellers to view whether they have purchased ML service for their dataset uploaded
     function view_ML_status(string memory data_hash) public view returns (bool) {
-        if(msg.sender==ML_purchase_status[data_hash].seller){
+        if(msg.sender==address(ML_purchase_status[data_hash].seller)){
             return ML_purchase_status[data_hash].isMLService;
         }
         return false;
