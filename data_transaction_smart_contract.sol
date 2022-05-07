@@ -7,6 +7,7 @@ contract data_transaction {
         address seller;
         uint price;//front-end
         string description;//front-end
+        address[] buyers;
     }
     struct ML_API_key {
         string api_key;
@@ -14,6 +15,7 @@ contract data_transaction {
         address seller;
         uint price;//front_end
         string description;//front_end
+        address[] buyers;
     }
     struct ml_status {
         bool isMLService;
@@ -45,7 +47,7 @@ contract data_transaction {
     event excess_eth_returned(address, uint);  //exchange excess eth sent to sender
 
     function uploadData(string memory data_hash, string memory dataset_name, uint price, bool purchase_ML, string memory data_description) public payable {
-        data_map[raw_data_id] = data(data_hash, dataset_name, msg.sender, price, data_description);
+        data_map[raw_data_id] = data(data_hash, dataset_name, msg.sender, price, data_description, new address[](0));
 
         if (purchase_ML == true) {
             require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
@@ -71,29 +73,31 @@ contract data_transaction {
         }
     }
 
-    function purchaseData(uint data_id) public payable returns(string memory) {
+    function purchaseData(uint data_id) public payable{
         require(msg.value >= data_map[data_id].price, "Indaquate ETH sent");
         payable(msg.sender).transfer(msg.value - data_map[data_id].price);
         emit excess_eth_returned(msg.sender, msg.value - data_map[data_id].price);
         payable(data_map[data_id].seller).transfer(data_map[data_id].price);
         //payable(data_map[data_id].seller).transfer(data_map[data_id].price);
         //payable(administrator).transfer(data_map[data_id].price);
-        return data_map[data_id].dataHash;
+        //emit send_data_hash(msg.sender, data_map[data_id].dataHash);
+        data_map[data_id].buyers.push(msg.sender);
     }
     
     function upload_ML_API_key(address seller, string memory ml_product_name, string memory api_key, uint price, string memory description) public {
-        ML_API_keys[ml_key_id] = ML_API_key(api_key, ml_product_name, seller, price, description);
+        ML_API_keys[ml_key_id] = ML_API_key(api_key, ml_product_name, seller, price, description, new address[](0));
         ml_key_id_list.push(ml_key_id);
         ml_key_id += 1;
     }
     
-    function purchase_ML_API(uint key_id) public payable returns (string memory) {
+    function purchase_ML_API(uint key_id) public payable{
         //payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
         require(msg.value >= ML_API_keys[key_id].price, "Indaquate ETH sent");
         payable(msg.sender).transfer(msg.value - data_map[key_id].price);
         emit excess_eth_returned(msg.sender, msg.value - data_map[key_id].price);
         payable(ML_API_keys[key_id].seller).transfer(ML_API_keys[key_id].price);
-        return ML_API_keys[key_id].api_key;
+        //return ML_API_keys[key_id].api_key;
+        ML_API_keys[key_id].buyers.push(msg.sender);
     }
 
     //For sellers to view whether they have purchased ML service for their dataset uploaded
@@ -115,6 +119,24 @@ contract data_transaction {
         }
         return "You don't have the access!";
     }
+
+    function view_purchased_raw_data(uint data_id) public view returns (string memory) {
+        for(uint i=0; i<data_map[data_id].buyers.length; i++){
+            if(msg.sender==data_map[data_id].buyers[i]){
+                return data_map[data_id].dataHash;
+            }
+        }
+        return "You haven't purchased this dataset!";
+    }
+
+    function view_purchased_ml_api_key(uint key_id) public view returns (string memory) {
+        for(uint i=0; i<ML_API_keys[key_id].buyers.length; i++){
+            if(msg.sender==ML_API_keys[key_id].buyers[i]){
+                return ML_API_keys[key_id].api_key;
+            }
+        }
+        return "You haven't purchased this api key!";
+    } 
 
     //check contract balance, should not be increased when someone purchase data
     function view_contract_balance() public view returns (uint) {
