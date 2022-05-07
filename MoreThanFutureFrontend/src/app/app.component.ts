@@ -9,6 +9,7 @@ import { ContractService } from './services/contract.service';
 export class AppComponent implements OnInit{
   userAddress = ""
   rawIdList:Number[] = [];
+  rawDataList: RawData[] = [];
 
   constructor(private contractService:ContractService) {
     
@@ -16,7 +17,7 @@ export class AppComponent implements OnInit{
   
   ngOnInit(){
   this.initRawData()
-
+  
   }
 
   private initRawData(){
@@ -24,6 +25,26 @@ export class AppComponent implements OnInit{
       idList =>{
         console.log("idList: ",idList);
         this.rawIdList = idList
+        this.contractService.getRawDataInfo(this.rawIdList).then(
+          (rawDataInfos:any) =>{
+            console.log(rawDataInfos) // 0:name,1:price,2:desc
+            const nameList = rawDataInfos[0]
+            const priceList = rawDataInfos[1]
+            const descList = rawDataInfos[2]
+            // let rawDataList: RawData[]
+
+            this.rawDataList = nameList.map( (v:any,index:any) => ({
+              dataId: this.rawIdList[index],
+              dataName: nameList[index], 
+              price: priceList[index],
+              dataDesc: descList[index]
+          }));
+            // console.log("rawDataList, ",this.rawDataList);
+            
+            
+          }
+        )
+
       }
     );
     
@@ -39,9 +60,11 @@ export class AppComponent implements OnInit{
     })
   }
 
-  buyData(){
-    console.log(`Calling purchaseData with address ${this.userAddress}`)
-    this.contractService.purchaseData(this.userAddress)
+  buyData(dataId:Number){
+    console.log(`Calling purchaseData with dataId: ${dataId} address: ${this.userAddress}`)
+    let dataResult = this.contractService.purchaseData(dataId,this.userAddress)
+    console.log(dataResult);
+    
   }
 
   uploadData(){
@@ -52,4 +75,12 @@ export class AppComponent implements OnInit{
   }
 
 
+}
+
+
+interface RawData{
+  dataId: Number,
+  dataName: String,
+  price: Number,
+  dataDesc: String
 }

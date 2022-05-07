@@ -38,6 +38,7 @@ export class ContractService {
       this.abi,
       this.contractAddress,
     );
+
   }
 
   public getRawIdList = async () => {
@@ -49,8 +50,21 @@ export class ContractService {
     catch (e) {
       return null
   }
+  return rawIdListResult
+}
 
-    return rawIdListResult;
+  public getRawDataInfo = async (idList:Number[]) =>{
+    console.log("Calling getRawDataInfo ");
+    let rawDataInfoList
+    try{
+      rawDataInfoList = await this.contract.methods.retrieve_raw_data_info(idList).call()
+    }
+    catch(e) {
+      return null
+    }
+
+    
+    return rawDataInfoList;
  
   }
 
@@ -77,22 +91,25 @@ export class ContractService {
     return userAddresses.length ? userAddresses[0] : null;
   };
 
-  public purchaseData = async (inputAddress?: String) => {
+  public purchaseData = async (dataId:Number,inputAddress?: String) => {
+    let dataResult;
 
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
 
-      const purchaseResult = this.contract.methods.purchaseData(0).send(
+      const purchaseResult = this.contract.methods.purchaseData(dataId).send(
         {
           from: fromAddress,
           value: 1
         }
       )
-        .on('excess_eth_returned', function (senderAddress: any, returnedEth: any) {
-          console.log("senderAddress,returnedEth ", senderAddress, returnedEth)
-        })
-        .then(function (res: any) {
+        // .on('excess_eth_returned', function (senderAddress: any, returnedEth: any) {
+        //   console.log("senderAddress,returnedEth ", senderAddress, returnedEth)
+        // })
+        .then(
+          (res:any) =>{
           console.log("purchaseResult", res)
+            dataResult = this.contract.methods.view_purchased_raw_data(dataId).call()
         });
 
 
@@ -101,6 +118,8 @@ export class ContractService {
       console.log(err);
 
     }
+
+    return dataResult
   }
 
   public uploadData = async (data_hash: String, price: Number, isML: boolean, inputAddress?: String) => {

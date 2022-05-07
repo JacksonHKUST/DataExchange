@@ -13,13 +13,15 @@
 
         <h5>Purchase Raw Data</h5>
         <div class="row rawData">
-            <ng-template ngFor let-rawId [ngForOf]="rawIdList" let-i="index" >
-                <div class="col-sm-4 py-2">
+            <ng-template ngFor let-rawData [ngForOf]="rawDataList" let-i="index" >
+                <div class="col-sm-6 py-2">
                     <div class="card h-100 border-primary">
                         <div class="card-body">
-                            <h3 class="card-title">{{rawId}}</h3>
-                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                            <a href="#" class="btn btn-outline-secondary">Outline</a>
+                            <!-- <h3 class="card-title">{{rawData.dataId}}</h3> -->
+                            <h4 class="card-title">Data name: {{rawData.dataName}}</h4>
+                            <h4 class="card-title">Price: {{rawData.price}}</h4>
+                            <p class="card-text">Description: {{rawData.dataDesc}}</p>
+                            <button (click)="buyData(rawData.dataId)" class="btn btn-primary">Purchase now</button>
                         </div>
                     </div>
                 </div>
