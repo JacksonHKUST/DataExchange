@@ -29,6 +29,17 @@ contract data_transaction {
     uint[] ml_key_id_list;
     uint ml_purchase_fee = 1 wei;
     address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
+
+    mapping(address => bool) public adminMemberMapping;
+    constructor() {
+        // Using metamask address for demo
+        adminMemberMapping[address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59)] = true; // Jackson 
+        adminMemberMapping[address(0x456)] = true; // Jason
+        adminMemberMapping[address(0x470bCF448E819306fa7aD1aA5ED5eD669B933C2b)] = true; //Carlo
+    }
+    function hasAdminRight(address inputAddress) private view returns (bool){
+        return adminMemberMapping[inputAddress];
+    }
     
     receive () external payable {}
     event excess_eth_returned(address, uint);  //exchange excess eth sent to sender
@@ -95,8 +106,12 @@ contract data_transaction {
     
     //For our team to view data hash of any data_id stored in our front-end
     function internal_view_data_hash(uint data_id) public view returns (string memory) {
-        if(msg.sender==administrator){
-        return data_map[data_id].dataHash;
+        // if(msg.sender==administrator){
+        // return data_map[data_id].dataHash;
+        // }
+        // return "You don't have the access!";
+        if(hasAdminRight(msg.sender)){
+            return data_map[data_id].dataHash;
         }
         return "You don't have the access!";
     }
