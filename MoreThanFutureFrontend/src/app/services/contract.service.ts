@@ -1,81 +1,148 @@
 import { Injectable } from '@angular/core';
 import Web3 from "web3";
 
-
-import {contractAddress } from "../../../../address"
-import { testAbi}from "../../../../abi"
+import { contractAddress } from "../../../../address"
+import { testAbi } from "../../../../abi"
 declare const window: any;
 
+// https://docs.metamask.io/guide/provider-migration.html#replacing-window-web3
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class ContractService {
+  
+  window: any;
 
-  address = contractAddress 
+  // Contract info
+  contractAddress = contractAddress
   abi = testAbi
+  contract:any
+  mlUploadFee = 1 // unit in wei
+  rawUploadFee = 0 // unit in wei
 
-    window:any;
-    constructor() { }
-    private getAccounts = async () => {
-        try {
-            return await window.ethereum.request({ method: 'eth_accounts' });
-        } catch (e) {
-            return [];
-        }
-    }
+  // User info
+  userAddress:any
 
-    public openMetamask = async () => {
-        window.web3 = new Web3(window.ethereum);
-        let addresses = await this.getAccounts();
-        console.log("service",addresses)
-        if (!addresses.length) {
-            try {
-                addresses = await window.ethereum.enable();
-            } catch (e) {
-                return false;
-            }
-        }
-        return addresses.length ? addresses[0] : null;
-    };
 
-    // public printApi = ()=>{
-    //   console.log(this.abi)
-    // }
-
-    public purchaseData = async () => {
-      try {
-              const contract = new window.web3.eth.Contract(
-                  this.abi,
-                  this.address,
-              );
-              const dataHash = await contract.methods.purchaseData(0).call();
-              console.log("dataHash",dataHash)
-              return dataHash
-          
-      }
-      catch (error) {
-          // const errorMessage = error.message;
-          console.log(error)
-
-      }
+  constructor() { 
+    this.initContractService()
   }
 
-  public uploadData = async () =>{
-
-    // string memory data_hash, uint price, bool purchase_ML
-    try{
-      const contract = new window.web3.eth.Contract(
-        this.abi,
-        this.address,
+  public initContractService() {
+    console.log("initContractService");
+    // init web3
+    window.web3 = new Web3(window.ethereum);
+    // init contract
+    this.contract = new window.web3.eth.Contract(
+      this.abi,
+      this.contractAddress,
     );
-    const uploadResult = await contract.methods.uploadData("def",100,false).call();
-        console.log("uploadResult",uploadResult);
-        
-    }catch(err){
-      console.log(err);
-      
+  }
+
+  public getRawIdList = async () => {
+    console.log("Calling getRawIdList");
+    let rawIdListResult 
+    try {
+      rawIdListResult = await this.contract.methods.view_raw_data_id_list().call()
+    }
+    catch (e) {
+      return null
+  }
+
+    return rawIdListResult;
+ 
+  }
+
+
+  private getAccounts = async () => {
+    try {
+      return await window.ethereum.request({ method: 'eth_accounts' });
+    } catch (e) {
+      return [];
     }
   }
-    
+
+  public openMetamask = async () => {
+    window.web3 = new Web3(window.ethereum);
+    let userAddresses = await this.getAccounts();
+    console.log("userAddress:", userAddresses)
+    if (!userAddresses.length) {
+      try { 
+        userAddresses = await window.ethereum.enable();
+      } catch (e) {
+        return false;
+      }
+    }
+    return userAddresses.length ? userAddresses[0] : null;
+  };
+
+  public purchaseData = async (inputAddress?: String) => {
+
+    try {
+      let fromAddress = await this.validateInputAddress(inputAddress);
+
+      const purchaseResult = this.contract.methods.purchaseData(0).send(
+        {
+          from: fromAddress,
+          value: 1
+        }
+      )
+        .on('excess_eth_returned', function (senderAddress: any, returnedEth: any) {
+          console.log("senderAddress,returnedEth ", senderAddress, returnedEth)
+        })
+        .then(function (res: any) {
+          console.log("purchaseResult", res)
+        });
+
+
+
+    } catch (err) {
+      console.log(err);
+
+    }
+  }
+
+  public uploadData = async (data_hash: String, price: Number, isML: boolean, inputAddress?: String) => {
+    try {
+      let fromAddress = await this.validateInputAddress(inputAddress);
+      const uploadResult = this.contract.methods.uploadData(data_hash, price, isML).send(
+        {
+          from: fromAddress,
+          value: isML ? this.mlUploadFee : this.rawUploadFee
+        }
+      )
+        .then(function (res: any) {
+          console.log("uploadResult", res)
+        });
+
+
+
+    } catch (err) {
+      console.log(err);
+
+    }
+
+  }
+
+
+  private async validateInputAddress(inputAddress?:String){
+    let fromAddress;
+    if(this.isAddressBlank(inputAddress)){
+      console.log("Calling openmMetamask to get user address");
+      this.userAddress = await this.openMetamask()
+      fromAddress = this.userAddress
+      console.log("this.userAddress",this.userAddress);
+    }
+    else{
+      console.log("Calling openmMetamask to get user address");
+      fromAddress = inputAddress
+    }
+    return fromAddress
+  }
+
+  private isAddressBlank(address?:String):boolean{
+    return (address == null || address === "");
+  }
+
 }

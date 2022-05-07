@@ -1,8 +1,34 @@
-<button (click)= "openMetaMask()"> Connect Wallet</button>
-
-<!-- <button (click)= "printApi()"> Test abi</button> -->
-
-<button (click)= "buyData()"> Test abi</button>
 
 
-<button (click)= "uploadData()"> Upload Data</button>
+    <!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
+    <!-- <button (click)= "buyData()"> Buy</button>
+    <button (click)= "uploadData()"> Upload Data</button>
+    <button type="button" class="btn btn-primary btn-sm">Small button</button>
+    <button type="button" class="btn btn-secondary btn-sm">Small button</button> -->
+    
+
+    <div class="container">
+
+        <h5>Upload Data</h5>
+
+        <h5>Purchase Raw Data</h5>
+        <div class="row rawData">
+            <ng-template ngFor let-rawId [ngForOf]="rawIdList" let-i="index" >
+                <div class="col-sm-4 py-2">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <h3 class="card-title">{{rawId}}</h3>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a href="#" class="btn btn-outline-secondary">Outline</a>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+
+        </div>
+
+        <h5>Purchase ML Data</h5>
+
+
+
+    </div>
