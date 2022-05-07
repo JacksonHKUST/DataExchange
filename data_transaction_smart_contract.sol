@@ -26,28 +26,42 @@ contract data_transaction {
     uint ml_purchase_fee = 1 wei;
     address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
     
-    function uploadData(string memory data_hash, uint price, bool purchase_ML) public {
+    receive () external payable {}
+    event excess_eth_returned(address, uint);  //exchange excess eth sent to sender
+
+    function uploadData(string memory data_hash, uint price, bool purchase_ML) public payable {
         data_map[last_id] = data(data_hash, msg.sender, price);
 
         if (purchase_ML == true) {
-            ML_purchase_status[data_hash].isMLService = true;
-            ML_purchase_status[data_hash].seller = msg.sender;
-            payable(administrator).transfer(ml_purchase_fee);
+            require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
+            ML_purchase_status[data_hash] = ml_status(true, msg.sender);
+            payable(msg.sender).transfer(msg.value - ml_purchase_fee);
+            emit excess_eth_returned(msg.sender, msg.value - ml_purchase_fee);
+            //payable(administrator).transfer(ml_purchase_fee);
+        } else {
+            ML_purchase_status[data_hash] = ml_status(false, msg.sender);
         }
 
         last_id += 1;
     }
 
-    function activate_ML_service(string memory data_hash) public {
+    function activate_ML_service(string memory data_hash) public payable {
         if (ML_purchase_status[data_hash].seller == msg.sender) {
-            payable(administrator).transfer(ml_purchase_fee);
+            //payable(administrator).transfer(ml_purchase_fee);
+            require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
+            payable(msg.sender).transfer(msg.value - ml_purchase_fee);
+            emit excess_eth_returned(msg.sender, msg.value - ml_purchase_fee);
             ML_purchase_status[data_hash].isMLService = true;
         }
     }
 
-    function purchaseData(uint data_id) public returns (string memory) {
+    function purchaseData(uint data_id) public payable returns(string memory) {
+        require(msg.value >= data_map[data_id].price, "Indaquate ETH sent");
+        payable(msg.sender).transfer(msg.value - data_map[data_id].price);
+        emit excess_eth_returned(msg.sender, msg.value - data_map[data_id].price);
         payable(data_map[data_id].seller).transfer(data_map[data_id].price);
-        payable(administrator).transfer(data_map[data_id].price);
+        //payable(data_map[data_id].seller).transfer(data_map[data_id].price);
+        //payable(administrator).transfer(data_map[data_id].price);
         return data_map[data_id].dataHash;
     }
     
@@ -56,7 +70,11 @@ contract data_transaction {
         last_id += 1;
     }
     
-    function purchase_ML_API(uint data_id) public returns (string memory) {
+    function purchase_ML_API(uint data_id) public payable returns (string memory) {
+        //payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
+        require(msg.value >= ML_API_keys[data_id].price, "Indaquate ETH sent");
+        payable(msg.sender).transfer(msg.value - data_map[data_id].price);
+        emit excess_eth_returned(msg.sender, msg.value - data_map[data_id].price);
         payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
         return ML_API_keys[data_id].api_key;
     }
@@ -75,5 +93,10 @@ contract data_transaction {
         return data_map[data_id].dataHash;
         }
         return "You don't have the access!";
+    }
+
+    //check contract balance, should not be increased when someone purchase data
+    function view_contract_balance() public view returns (uint) {
+        return address(this).balance;
     }
 }
