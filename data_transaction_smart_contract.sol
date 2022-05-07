@@ -34,7 +34,7 @@ contract data_transaction {
     constructor() {
         // Using metamask address for demo
         adminMemberMapping[address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59)] = true; // Jackson 
-        adminMemberMapping[address(0x456)] = true; // Jason
+        adminMemberMapping[address(0xc834E96DD8788Ce1702c589dd56cA7415a041177)] = true; // Jason
         adminMemberMapping[address(0x470bCF448E819306fa7aD1aA5ED5eD669B933C2b)] = true; //Carlo
     }
     function hasAdminRight(address inputAddress) private view returns (bool){

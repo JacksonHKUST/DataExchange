@@ -116,8 +116,71 @@ export const testAbi =
 	{
 		"inputs": [
 			{
+				"internalType": "uint256[]",
+				"name": "ml_key_list",
+				"type": "uint256[]"
+			}
+		],
+		"name": "retrieve_ml_product_info",
+		"outputs": [
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "data_id_list",
+				"type": "uint256[]"
+			}
+		],
+		"name": "retrieve_raw_data_info",
+		"outputs": [
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "string[]",
+				"name": "",
+				"type": "string[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "string",
 				"name": "data_hash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dataset_name",
 				"type": "string"
 			},
 			{
@@ -129,6 +192,11 @@ export const testAbi =
 				"internalType": "bool",
 				"name": "purchase_ML",
 				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "data_description",
+				"type": "string"
 			}
 		],
 		"name": "uploadData",
@@ -145,6 +213,11 @@ export const testAbi =
 			},
 			{
 				"internalType": "string",
+				"name": "ml_product_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
 				"name": "api_key",
 				"type": "string"
 			},
@@ -152,6 +225,11 @@ export const testAbi =
 				"internalType": "uint256",
 				"name": "price",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
 			}
 		],
 		"name": "upload_ML_API_key",
