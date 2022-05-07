@@ -22,8 +22,10 @@ contract data_transaction {
     mapping(uint => data) data_map;
     mapping(uint => ML_API_key) ML_API_keys;
     mapping(string => ml_status) ML_purchase_status; 
-    uint last_id;
-    uint[] id_list;
+    uint raw_data_id;
+    uint[] raw_data_id_list;
+    uint ml_key_id;
+    uint[] ml_key_id_list;
     uint ml_purchase_fee = 1 wei;
     address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
     
@@ -31,7 +33,7 @@ contract data_transaction {
     event excess_eth_returned(address, uint);  //exchange excess eth sent to sender
 
     function uploadData(string memory data_hash, uint price, bool purchase_ML) public payable {
-        data_map[last_id] = data(data_hash, msg.sender, price);
+        data_map[raw_data_id] = data(data_hash, msg.sender, price);
 
         if (purchase_ML == true) {
             require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
@@ -43,11 +45,11 @@ contract data_transaction {
             ML_purchase_status[data_hash] = ml_status(false, msg.sender);
         }
         
-        id_list.push(last_id);
-        last_id += 1;
+        raw_data_id_list.push(raw_data_id);
+        raw_data_id += 1;
     }
 
-    function activate_ML_service(string memory data_hash) public payable {
+     function activate_ML_service(string memory data_hash) public payable {
         if (ML_purchase_status[data_hash].seller == msg.sender) {
             //payable(administrator).transfer(ml_purchase_fee);
             require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
@@ -68,18 +70,18 @@ contract data_transaction {
     }
     
     function upload_ML_API_key(address seller, string memory api_key, uint price) public {
-        ML_API_keys[last_id] = ML_API_key(api_key, seller, price);
-        id_list.push(last_id);
-        last_id += 1;
+        ML_API_keys[ml_key_id] = ML_API_key(api_key, seller, price);
+        ml_key_id_list.push(ml_key_id);
+        ml_key_id += 1;
     }
     
-    function purchase_ML_API(uint data_id) public payable returns (string memory) {
+    function purchase_ML_API(uint key_id) public payable returns (string memory) {
         //payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
-        require(msg.value >= ML_API_keys[data_id].price, "Indaquate ETH sent");
-        payable(msg.sender).transfer(msg.value - data_map[data_id].price);
-        emit excess_eth_returned(msg.sender, msg.value - data_map[data_id].price);
-        payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
-        return ML_API_keys[data_id].api_key;
+        require(msg.value >= ML_API_keys[key_id].price, "Indaquate ETH sent");
+        payable(msg.sender).transfer(msg.value - data_map[key_id].price);
+        emit excess_eth_returned(msg.sender, msg.value - data_map[key_id].price);
+        payable(ML_API_keys[key_id].seller).transfer(ML_API_keys[key_id].price);
+        return ML_API_keys[key_id].api_key;
     }
 
     //For sellers to view whether they have purchased ML service for their dataset uploaded
@@ -103,7 +105,11 @@ contract data_transaction {
         return address(this).balance;
     }
 
-    function view_id_list() public view returns (uint[] memory) {
-        return id_list;
+    function view_raw_data_id_list() public view returns (uint[] memory) {
+        return raw_data_id_list;
+    }
+
+    function view_ml_key_id_list() public view returns (uint[] memory) {
+        return ml_key_id_list;
     }
 }
