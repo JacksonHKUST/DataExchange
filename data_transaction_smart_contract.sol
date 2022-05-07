@@ -3,16 +3,17 @@ pragma solidity ^0.8.3;
 contract data_transaction {
     struct data {
         string dataHash;
+        string dataset_name;//front_end
         address seller;
-        uint price;
-        //string description;
-        //bool isMLService;
+        uint price;//front-end
+        string description;//front-end
     }
     struct ML_API_key {
         string api_key;
+        string ml_product_name;//front_end
         address seller;
-        uint price;
-        //string description;
+        uint price;//front_end
+        string description;//front_end
     }
     struct ml_status {
         bool isMLService;
@@ -28,23 +29,12 @@ contract data_transaction {
     uint[] ml_key_id_list;
     uint ml_purchase_fee = 1 wei;
     address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
-
-    mapping(address => bool) public adminMemberMapping;
-    constructor() {
-        // Using metamask address for demo
-        adminMemberMapping[address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59)] = true; // Jackson 
-        adminMemberMapping[address(0x456)] = true; // Jason
-        adminMemberMapping[address(0x470bCF448E819306fa7aD1aA5ED5eD669B933C2b)] = true; //Carlo
-    }
-    function hasAdminRight(address inputAddress) private view returns (bool){
-        return adminMemberMapping[inputAddress];
-    }
     
     receive () external payable {}
     event excess_eth_returned(address, uint);  //exchange excess eth sent to sender
 
-    function uploadData(string memory data_hash, uint price, bool purchase_ML) public payable {
-        data_map[raw_data_id] = data(data_hash, msg.sender, price);
+    function uploadData(string memory data_hash, string memory dataset_name, uint price, bool purchase_ML, string memory data_description) public payable {
+        data_map[raw_data_id] = data(data_hash, dataset_name, msg.sender, price, data_description);
 
         if (purchase_ML == true) {
             require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
@@ -80,8 +70,8 @@ contract data_transaction {
         return data_map[data_id].dataHash;
     }
     
-    function upload_ML_API_key(address seller, string memory api_key, uint price) public {
-        ML_API_keys[ml_key_id] = ML_API_key(api_key, seller, price);
+    function upload_ML_API_key(address seller, string memory ml_product_name, string memory api_key, uint price, string memory description) public {
+        ML_API_keys[ml_key_id] = ML_API_key(api_key, ml_product_name, seller, price, description);
         ml_key_id_list.push(ml_key_id);
         ml_key_id += 1;
     }
@@ -105,11 +95,8 @@ contract data_transaction {
     
     //For our team to view data hash of any data_id stored in our front-end
     function internal_view_data_hash(uint data_id) public view returns (string memory) {
-        // if(msg.sender==administrator){
-        // return data_map[data_id].dataHash;
-        // }
-        if(hasAdminRight(msg.sender)){
-            return data_map[data_id].dataHash;
+        if(msg.sender==administrator){
+        return data_map[data_id].dataHash;
         }
         return "You don't have the access!";
     }
@@ -126,4 +113,29 @@ contract data_transaction {
     function view_ml_key_id_list() public view returns (uint[] memory) {
         return ml_key_id_list;
     }
+
+    function retrieve_raw_data_info(uint[] memory data_id_list) public view returns (string[] memory, uint[] memory, string[] memory){
+        string[] memory dataset_name_list = new string[](data_id_list.length);
+        uint[] memory data_price_list = new uint[](data_id_list.length);
+        string[] memory data_description_list = new string[](data_id_list.length);
+        for (uint i=0; i<data_id_list.length; i++){
+             dataset_name_list[i] = data_map[data_id_list[i]].dataset_name;
+             data_price_list[i] = data_map[data_id_list[i]].price;
+             data_description_list[i] = data_map[data_id_list[i]].description;
+        }
+        return (dataset_name_list, data_price_list, data_description_list);
+    }
+
+    function retrieve_ml_product_info(uint[] memory ml_key_list) public view returns (string[] memory, uint[] memory, string[] memory){
+        string[] memory ml_product_name_list = new string[](ml_key_list.length);
+        uint[] memory price_list = new uint[](ml_key_list.length);
+        string[] memory description_list = new string[](ml_key_list.length);
+        for (uint i=0; i<ml_key_list.length; i++){
+             ml_product_name_list[i] = ML_API_keys[ml_key_list[i]].ml_product_name;
+             price_list[i] = ML_API_keys[ml_key_list[i]].price;
+             description_list[i] = ML_API_keys[ml_key_list[i]].description;
+        }
+        return (ml_product_name_list, price_list, description_list);
+    }
+    
 }
