@@ -23,6 +23,7 @@ contract data_transaction {
     mapping(uint => ML_API_key) ML_API_keys;
     mapping(string => ml_status) ML_purchase_status; 
     uint last_id;
+    uint[] id_list;
     uint ml_purchase_fee = 1 wei;
     address administrator = address(0xcd9EdCee608e3D7D8Cb3a82Fe7ac5AAD7Cf54e59);
     
@@ -41,7 +42,8 @@ contract data_transaction {
         } else {
             ML_purchase_status[data_hash] = ml_status(false, msg.sender);
         }
-
+        
+        id_list.push(last_id);
         last_id += 1;
     }
 
@@ -67,6 +69,7 @@ contract data_transaction {
     
     function upload_ML_API_key(address seller, string memory api_key, uint price) public {
         ML_API_keys[last_id] = ML_API_key(api_key, seller, price);
+        id_list.push(last_id);
         last_id += 1;
     }
     
@@ -98,5 +101,9 @@ contract data_transaction {
     //check contract balance, should not be increased when someone purchase data
     function view_contract_balance() public view returns (uint) {
         return address(this).balance;
+    }
+
+    function view_id_list() public view returns (uint[] memory) {
+        return id_list;
     }
 }
