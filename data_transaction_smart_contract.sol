@@ -3,18 +3,18 @@ pragma solidity ^0.8.3;
 contract data_transaction {
     struct data {
         string dataHash;
-        string dataset_name;//front_end
+        string dataset_name;
         address seller;
-        uint price;//front-end
-        string description;//front-end
+        uint price;
+        string description;
         address[] buyers;
     }
     struct ML_API_key {
         string api_key;
-        string ml_product_name;//front_end
+        string ml_product_name;
         address seller;
-        uint price;//front_end
-        string description;//front_end
+        uint price;
+        string description;
         address[] buyers;
     }
     struct ml_status {
@@ -63,61 +63,12 @@ contract data_transaction {
         raw_data_id += 1;
     }
 
-     function activate_ML_service(string memory data_hash) public payable {
-        if (ML_purchase_status[data_hash].seller == msg.sender) {
-            //payable(administrator).transfer(ml_purchase_fee);
-            require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
-            payable(msg.sender).transfer(msg.value - ml_purchase_fee);
-            emit excess_eth_returned(msg.sender, msg.value - ml_purchase_fee);
-            ML_purchase_status[data_hash].isMLService = true;
-        }
-    }
-
     function purchaseData(uint data_id) public payable{
         require(msg.value >= data_map[data_id].price, "Indaquate ETH sent");
         payable(msg.sender).transfer(msg.value - data_map[data_id].price);
         emit excess_eth_returned(msg.sender, msg.value - data_map[data_id].price);
         payable(data_map[data_id].seller).transfer(data_map[data_id].price);
-        //payable(data_map[data_id].seller).transfer(data_map[data_id].price);
-        //payable(administrator).transfer(data_map[data_id].price);
-        //emit send_data_hash(msg.sender, data_map[data_id].dataHash);
         data_map[data_id].buyers.push(msg.sender);
-    }
-    
-    function upload_ML_API_key(address seller, string memory ml_product_name, string memory api_key, uint price, string memory description) public {
-        ML_API_keys[ml_key_id] = ML_API_key(api_key, ml_product_name, seller, price, description, new address[](0));
-        ml_key_id_list.push(ml_key_id);
-        ml_key_id += 1;
-    }
-    
-    function purchase_ML_API(uint key_id) public payable{
-        //payable(ML_API_keys[data_id].seller).transfer(ML_API_keys[data_id].price);
-        require(msg.value >= ML_API_keys[key_id].price, "Indaquate ETH sent");
-        payable(msg.sender).transfer(msg.value - data_map[key_id].price);
-        emit excess_eth_returned(msg.sender, msg.value - data_map[key_id].price);
-        payable(ML_API_keys[key_id].seller).transfer(ML_API_keys[key_id].price);
-        //return ML_API_keys[key_id].api_key;
-        ML_API_keys[key_id].buyers.push(msg.sender);
-    }
-
-    //For sellers to view whether they have purchased ML service for their dataset uploaded
-    function view_ML_status(string memory data_hash) public view returns (bool) {
-        if(msg.sender==ML_purchase_status[data_hash].seller){
-            return ML_purchase_status[data_hash].isMLService;
-        }
-        return false;
-    }
-    
-    //For our team to view data hash of any data_id stored in our front-end
-    function internal_view_data_hash(uint data_id) public view returns (string memory) {
-        // if(msg.sender==administrator){
-        // return data_map[data_id].dataHash;
-        // }
-        // return "You don't have the access!";
-        if(hasAdminRight(msg.sender)){
-            return data_map[data_id].dataHash;
-        }
-        return "You don't have the access!";
     }
 
     function view_purchased_raw_data(uint data_id) public view returns (string memory) {
@@ -129,6 +80,20 @@ contract data_transaction {
         return "You haven't purchased this dataset!";
     }
 
+    function upload_ML_API_key(address seller, string memory ml_product_name, string memory api_key, uint price, string memory description) public {
+        ML_API_keys[ml_key_id] = ML_API_key(api_key, ml_product_name, seller, price, description, new address[](0));
+        ml_key_id_list.push(ml_key_id);
+        ml_key_id += 1;
+    }
+
+    function purchase_ML_API(uint key_id) public payable{
+        require(msg.value >= ML_API_keys[key_id].price, "Indaquate ETH sent");
+        payable(msg.sender).transfer(msg.value - (ML_API_keys[key_id].price));
+        emit excess_eth_returned(msg.sender, msg.value - (ML_API_keys[key_id].price));
+        payable(ML_API_keys[key_id].seller).transfer(ML_API_keys[key_id].price);
+        ML_API_keys[key_id].buyers.push(msg.sender);
+    }
+
     function view_purchased_ml_api_key(uint key_id) public view returns (string memory) {
         for(uint i=0; i<ML_API_keys[key_id].buyers.length; i++){
             if(msg.sender==ML_API_keys[key_id].buyers[i]){
@@ -138,19 +103,42 @@ contract data_transaction {
         return "You haven't purchased this api key!";
     } 
 
-    //check contract balance, should not be increased when someone purchase data
-    function view_contract_balance() public view returns (uint) {
-        return address(this).balance;
+    //For sellers to view whether they have purchased ML service for their dataset uploaded
+    function view_ML_status(string memory data_hash) public view returns (bool) {
+        if(msg.sender==ML_purchase_status[data_hash].seller){
+            return ML_purchase_status[data_hash].isMLService;
+        }
+        return false;
     }
 
+    function activate_ML_service(string memory data_hash) public payable {
+        if (ML_purchase_status[data_hash].seller == msg.sender) {
+            require(msg.value >= ml_purchase_fee, "Inadequate ETH sent");
+            payable(msg.sender).transfer(msg.value - ml_purchase_fee);
+            emit excess_eth_returned(msg.sender, msg.value - ml_purchase_fee);
+            ML_purchase_status[data_hash].isMLService = true;
+        }
+    }
+
+    //For our team to view data hash of any data_id stored in our front-end
+    function internal_view_data_hash(uint data_id) public view returns (string memory) {
+        if(hasAdminRight(msg.sender)){
+            return data_map[data_id].dataHash;
+        }
+        return "You don't have the access!";
+    }
+    
+    //For front-end view
     function view_raw_data_id_list() public view returns (uint[] memory) {
         return raw_data_id_list;
     }
 
+    //For front-end view
     function view_ml_key_id_list() public view returns (uint[] memory) {
         return ml_key_id_list;
     }
 
+    //For front-end retrieval
     function retrieve_raw_data_info(uint[] memory data_id_list) public view returns (string[] memory, uint[] memory, string[] memory){
         string[] memory dataset_name_list = new string[](data_id_list.length);
         uint[] memory data_price_list = new uint[](data_id_list.length);
@@ -163,6 +151,7 @@ contract data_transaction {
         return (dataset_name_list, data_price_list, data_description_list);
     }
 
+    //For front-end retrieval
     function retrieve_ml_product_info(uint[] memory ml_key_list) public view returns (string[] memory, uint[] memory, string[] memory){
         string[] memory ml_product_name_list = new string[](ml_key_list.length);
         uint[] memory price_list = new uint[](ml_key_list.length);
