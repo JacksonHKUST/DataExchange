@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import Web3 from "web3";
 
 import { contractAddress } from "../../../../address"
 import { testAbi } from "../../../../abi"
+import { Constants } from "../../../../Constants"
 declare const window: any;
 
 // https://docs.metamask.io/guide/provider-migration.html#replacing-window-web3
@@ -11,21 +12,23 @@ declare const window: any;
   providedIn: 'root'
 })
 export class ContractService {
-  
+
   window: any;
 
   // Contract info
   contractAddress = contractAddress
   abi = testAbi
-  contract:any
-  mlUploadFee = 1 // unit in wei
-  rawUploadFee = 0 // unit in wei
+  contract: any
+  mlUploadFee = Constants.ML_UPLOAD_Fee 
+  rawUploadFee = Constants.RAW_UPLOAD_FEE 
 
   // User info
-  userAddress:any
+  userAddress: any
+
+  isProcessingEvent = new EventEmitter<Boolean>();
 
 
-  constructor() { 
+  constructor() {
     this.initContractService()
   }
 
@@ -41,32 +44,50 @@ export class ContractService {
 
   }
 
-  public getRawIdList = async () => {
-    console.log("Calling getRawIdList");
-    let rawIdListResult 
+  public getIdList = async (isMl:boolean) => {
+    console.log("Calling getIdList");
+    let idListResult
     try {
-      rawIdListResult = await this.contract.methods.view_raw_data_id_list().call()
+      if(isMl){
+        idListResult = await this.contract.methods.view_ml_key_id_list().call()
+      }
+      else{
+        idListResult = await this.contract.methods.view_raw_data_id_list().call()
+      }
+      
     }
     catch (e) {
       return null
-  }
-  return rawIdListResult
-}
-
-  public getRawDataInfo = async (idList:Number[]) =>{
-    console.log("Calling getRawDataInfo ");
-    let rawDataInfoList
-    try{
-      rawDataInfoList = await this.contract.methods.retrieve_raw_data_info(idList).call()
     }
-    catch(e) {
-      return null
+    return idListResult
+  }
+
+
+
+
+  public getDataInfo = async (idList: Number[],isMl:boolean) => {
+    console.log("Calling getDataInfo");
+    if(idList == null || idList.length == 0){
+      return {0:[],1:[],2:[]}
     }
 
-    
-    return rawDataInfoList;
- 
+    let dataInfoList
+    try {
+      if(isMl){
+        dataInfoList = await this.contract.methods.retrieve_ml_product_info(idList).call()
+      }
+      else{
+        dataInfoList = await this.contract.methods.retrieve_raw_data_info(idList).call()
+      }
+     
+    }
+    catch (e) {
+      return {0:[],1:[],2:[]}
+    }
+    return dataInfoList;
+
   }
+
 
 
   private getAccounts = async () => {
@@ -82,7 +103,7 @@ export class ContractService {
     let userAddresses = await this.getAccounts();
     console.log("userAddress:", userAddresses)
     if (!userAddresses.length) {
-      try { 
+      try {
         userAddresses = await window.ethereum.enable();
       } catch (e) {
         return false;
@@ -91,76 +112,141 @@ export class ContractService {
     return userAddresses.length ? userAddresses[0] : null;
   };
 
-  public purchaseData = async (dataId:Number,inputAddress?: String) => {
+
+
+
+
+  public purchaseData = async (dataId: Number, price: Number,isMl:boolean, inputAddress?: String) => {
     let dataResult;
 
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
 
-      const purchaseResult = this.contract.methods.purchaseData(dataId).send(
+
+      let contractMethod;
+
+      if(isMl){
+       contractMethod = this.contract.methods.purchase_ML_API // keyId
+      }
+      else{
+      contractMethod = this.contract.methods.purchaseData
+      }
+        this.isProcessingEvent.emit(true)
+      // const purchaseResult = await this.contract.methods.purchaseData(dataId).send(
+        const purchaseResult = await contractMethod(dataId).send(
         {
           from: fromAddress,
-          value: 1
+          value: price,
+          // value: 1
         }
-      )
-        // .on('excess_eth_returned', function (senderAddress: any, returnedEth: any) {
-        //   console.log("senderAddress,returnedEth ", senderAddress, returnedEth)
-        // })
+      ).on('excess_eth_returned', function (senderAddress: any, returnedEth: any) {
+        // console.log("senderAddress,returnedEth ", senderAddress, returnedEth)
+      })
         .then(
-          (res:any) =>{
-          console.log("purchaseResult", res)
-            dataResult = this.contract.methods.view_purchased_raw_data(dataId).call()
-        });
+          async (res: any) => {
+            console.log("purchaseResult", res)
+            console.log("dataId: ", dataId);
+
+            if(isMl){
+              await this.contract.methods.view_purchased_ml_api_key(dataId).call(
+                {
+                  from: fromAddress,
+                }
+              ).then(
+                (apiKey: any) => {
+                  console.log("apiKey ", apiKey);
+                  dataResult = apiKey
+                }
+              )
+            }
+            else{
+              await this.contract.methods.view_purchased_raw_data(dataId).call({
+                from: fromAddress,
+              }).then(
+                (dataHash: any) => {
+                  console.log("dataHash: ", dataHash);
+                  dataResult = dataHash
+                }
+              )
+            }
 
 
+          });
+
+          this.isProcessingEvent.emit(false)
+          return dataResult
 
     } catch (err) {
-      console.log(err);
+      // console.log(err);
+      this.isProcessingEvent.emit(false)
+      return Constants.MESSAGE_TRASACTION_GENERAL_ERROR
 
     }
 
-    return dataResult
+    // return dataResult
   }
 
-  public uploadData = async (data_hash: String, price: Number, isML: boolean, inputAddress?: String) => {
+
+
+
+
+
+
+  public uploadData = async (data_hash: String, dataName:String,price: Number, purchaseMl: boolean, dataDesc:String,inputAddress?: String) => {
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
-      const uploadResult = this.contract.methods.uploadData(data_hash, price, isML).send(
-        {
-          from: fromAddress,
-          value: isML ? this.mlUploadFee : this.rawUploadFee
-        }
-      )
-        .then(function (res: any) {
-          console.log("uploadResult", res)
-        });
+      // uploadResult = this.contract.methods.upload_ML_API_key(fromAddress, dataName,data_hash,price,dataDesc).send(
+      //   {
+      //     from: fromAddress,
+      //     value: 0
+      //   }
+      // )
 
+      console.log("data_hash, dataName,price, purchaseMl,dataDesc,",data_hash, dataName,price, purchaseMl,dataDesc);
+      
+      this.isProcessingEvent.emit(true)
 
-
+       await this.contract.methods.uploadData(data_hash, dataName,price, purchaseMl,dataDesc).send(
+          {
+            from: fromAddress,
+            value: purchaseMl ? this.mlUploadFee : this.rawUploadFee
+          }
+        )
+          .then( (res: any) =>{
+            console.log("uploadResult", res)
+          });
+          this.isProcessingEvent.emit(false)
+          return Constants.MESSAGE_TRASACTION_UPLOAD_SUCCESSFULLY
     } catch (err) {
       console.log(err);
+      this.isProcessingEvent.emit(false)
+      return Constants.MESSAGE_TRASACTION_GENERAL_ERROR
 
     }
+   
 
   }
 
 
-  private async validateInputAddress(inputAddress?:String){
+
+
+
+  private async validateInputAddress(inputAddress?: String) {
     let fromAddress;
-    if(this.isAddressBlank(inputAddress)){
+    if (this.isAddressBlank(inputAddress)) {
       console.log("Calling openmMetamask to get user address");
       this.userAddress = await this.openMetamask()
       fromAddress = this.userAddress
-      console.log("this.userAddress",this.userAddress);
+      console.log("userAddress got from openMetamask: ", this.userAddress);
     }
-    else{
-      console.log("Calling openmMetamask to get user address");
+    else {
+      console.log("Using input address");
       fromAddress = inputAddress
     }
     return fromAddress
   }
 
-  private isAddressBlank(address?:String):boolean{
+  private isAddressBlank(address?: String): boolean {
     return (address == null || address === "");
   }
 

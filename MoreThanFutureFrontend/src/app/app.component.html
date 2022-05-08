@@ -1,36 +1,96 @@
+<!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
 
+<div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }" >
 
-    <!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
-    <!-- <button (click)= "buyData()"> Buy</button>
-    <button (click)= "uploadData()"> Upload Data</button>
-    <button type="button" class="btn btn-primary btn-sm">Small button</button>
-    <button type="button" class="btn btn-secondary btn-sm">Small button</button> -->
-    
+    <h5>Upload Data</h5>
 
-    <div class="container">
+    <form [formGroup]="uploadForm">
+        <div class="form-group">
+            <label>Data name</label>
+            <input type="text" class="form-control" formControlName="dataNameInput">
+        </div>
+        <div class="form-group">
+            <label>Data hash</label>
+            <input type="text" class="form-control" formControlName="dataHashInput">
+        </div>
+        <div class="form-group">
+            <label>Price (in wei)</label>
+            <input type="number" inputmode="numeric" class="form-control" formControlName="priceInput">
+        </div>
+        <div class="form-group">
+            <label>Data description</label>
+            <textarea class="form-control" formControlName="dataDescInput" rows="3"></textarea>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" formControlName="mlCheckbox" [value]="isMlChecked"
+                (change)="onCheckboxChange($event)">
+            <label class="form-check-label" for="isMlCheckbox">
+                Default checkbox
+            </label>
+        </div>
+        <button (click)="uploadData()" class="btn btn-primary" [disabled]="!uploadForm.valid"> Upload Data</button>
+    </form>
 
-        <h5>Upload Data</h5>
-
-        <h5>Purchase Raw Data</h5>
-        <div class="row rawData">
-            <ng-template ngFor let-rawData [ngForOf]="rawDataList" let-i="index" >
-                <div class="col-sm-6 py-2">
-                    <div class="card h-100 border-primary">
-                        <div class="card-body">
-                            <!-- <h3 class="card-title">{{rawData.dataId}}</h3> -->
-                            <h4 class="card-title">Data name: {{rawData.dataName}}</h4>
-                            <h4 class="card-title">Price: {{rawData.price}}</h4>
-                            <p class="card-text">Description: {{rawData.dataDesc}}</p>
-                            <button (click)="buyData(rawData.dataId)" class="btn btn-primary">Purchase now</button>
-                        </div>
+    <hr>
+    <h5>Purchase Raw Data</h5>
+    <div class="row rawData">
+        <ng-template ngFor let-data [ngForOf]="rawDataList" let-i="index">
+            <div class="col-sm-6 py-2">
+                <div class="card h-100 border-primary">
+                    <div class="card-body">
+                        <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
+                        <h4 class="card-title">Data name: {{data.dataName}}</h4>
+                        <h4 class="card-title">Price: {{data.price}}</h4>
+                        <p class="card-text">Description: {{data.dataDesc}}</p>
+                        <button (click)="buyData(data.dataId,data.price,false)" class="btn btn-primary">Purchase
+                            now</button>
                     </div>
                 </div>
-            </ng-template>
-
-        </div>
-
-        <h5>Purchase ML Data</h5>
-
-
+            </div>
+        </ng-template>
 
     </div>
+    <hr>
+    <h5>Purchase ML Data</h5>
+    <div class="row mlData">
+        <ng-template ngFor let-data [ngForOf]="mlDataList" let-i="index">
+            <div class="col-sm-6 py-2">
+                <div class="card h-100 border-primary">
+                    <div class="card-body">
+                        <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
+                        <h4 class="card-title">Data name: {{data.dataName}}</h4>
+                        <h4 class="card-title">Price: {{data.price}}</h4>
+                        <p class="card-text">Description: {{data.dataDesc}}</p>
+                        <button (click)="buyData(data.dataId,data.price,true)" class="btn btn-primary">Purchase
+                            now</button>
+                    </div>
+                </div>
+            </div>
+        </ng-template>
+
+    </div>
+
+ 
+</div>
+
+<div class="modal" tabindex="-1" role="dialog"[ngStyle]="{'display':  isPopupOpened? 'block':'none'}" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Transaction Dialog</h4>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="isProcessing">
+                    <button class="btn btn-primary" disabled >
+                        <span class="spinner-grow spinner-grow-sm"></span>
+                        Transaction Processing..
+                      </button>
+                </div>
+                <p>{{responseResult}}</p>
+            </div>
+            <div class="modal-footer">
+                <button (click)="controlPopupWindow(false,'')" class="btn btn-primary" [disabled]="isProcessing"> Close</button>
+            </div>
+        </div>
+    </div>
+</div>
