@@ -218,6 +218,39 @@ export class ContractService {
   }
 
 
+  public viewMlStatus = async (data_hash: String,inputAddress?: String) => {
+    try {
+      let fromAddress = await this.validateInputAddress(inputAddress);
+
+      console.log("data_hash: ",data_hash);
+      
+      this.isProcessingEvent.emit(true)
+
+       const isMlEnabled = await this.contract.methods.view_ML_status(data_hash).send(
+          {
+            from: fromAddress,
+            value: 0
+          }
+        )
+          .then( (res: any) =>{
+            console.log("viewMlStatus Result", res)
+
+          });
+          this.isProcessingEvent.emit(false)
+          if(isMlEnabled){
+            return Constants.MESSAGE_ML_ENABLED
+          }
+          return Constants.MESSAGE_ML_DISALBED
+    } catch (err) {
+      console.log(err);
+      this.isProcessingEvent.emit(false)
+      return Constants.MESSAGE_TRASACTION_GENERAL_ERROR
+
+    }
+   
+
+  }
+
 
 
 

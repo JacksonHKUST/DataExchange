@@ -179,6 +179,26 @@ export class AppComponent implements OnInit{
 
   }
 
+  checkMlStatus(){
+
+    console.log(`Upload Data`);
+    console.log("this.activateForm.value: ",this.activateForm.value);
+    const formValue = this.activateForm.value
+    const rawDataHash = formValue.rawDataHashInput
+
+    this.controlPopupWindow(true,"")
+    this.contractService.activateMlService(rawDataHash)
+    .then(
+      res=>{
+
+        this.controlPopupWindow(true,res)
+      }
+    )
+
+    this.resetUploadForm()
+
+  }
+
 
 
   controlPopupWindow(isPopupOpened:Boolean,res?:String){

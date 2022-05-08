@@ -9,6 +9,7 @@
             <input type="text" class="form-control" formControlName="rawDataHashInput">
         </div>
         <button (click)="activeMlService()" class="btn btn-primary" [disabled]="!activateForm.valid"> Activate</button>
+        <button (click)="checkMlStatus()" class="btn btn-primary" [disabled]="!activateForm.valid"> Check Ml status</button>
     </form>
 
     <form [formGroup]="uploadForm">
@@ -32,7 +33,7 @@
             <input class="form-check-input" type="checkbox" value="" formControlName="mlCheckbox" [value]="isMlChecked"
                 (change)="onCheckboxChange($event)">
             <label class="form-check-label" for="isMlCheckbox">
-                Default checkbox
+                Purchase ML Service
             </label>
         </div>
         <button (click)="uploadData()" class="btn btn-primary" [disabled]="!uploadForm.valid"> Upload Data</button>
