@@ -19,7 +19,7 @@ export class ContractService {
   contractAddress = contractAddress
   abi = testAbi
   contract: any
-  mlUploadFee = Constants.ML_UPLOAD_Fee 
+  mlUploadFee = Constants.ML_UPLOAD_FEE 
   rawUploadFee = Constants.RAW_UPLOAD_FEE 
 
   // User info
@@ -187,6 +187,35 @@ export class ContractService {
   }
 
 
+
+  public activateMlService = async (data_hash: String,inputAddress?: String) => {
+    try {
+      let fromAddress = await this.validateInputAddress(inputAddress);
+
+      console.log("data_hash: ",data_hash);
+      
+      this.isProcessingEvent.emit(true)
+
+       await this.contract.methods.activate_ML_service(data_hash).send(
+          {
+            from: fromAddress,
+            value: this.mlUploadFee
+          }
+        )
+          .then( (res: any) =>{
+            console.log("activateResult", res)
+          });
+          this.isProcessingEvent.emit(false)
+          return Constants.MESSAGE_TRASACTION_ACTIVATE_SUCCESSFULLY
+    } catch (err) {
+      console.log(err);
+      this.isProcessingEvent.emit(false)
+      return Constants.MESSAGE_TRASACTION_GENERAL_ERROR
+
+    }
+   
+
+  }
 
 
 

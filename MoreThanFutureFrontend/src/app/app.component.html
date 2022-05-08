@@ -1,8 +1,15 @@
 <!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
 
 <div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }" >
-
+    <h5>Acitivate ML Service</h5>
     <h5>Upload Data</h5>
+    <form [formGroup]="activateForm">
+        <div class="form-group">
+            <label>Data hash</label>
+            <input type="text" class="form-control" formControlName="rawDataHashInput">
+        </div>
+        <button (click)="activeMlService()" class="btn btn-primary" [disabled]="!activateForm.valid"> Activate</button>
+    </form>
 
     <form [formGroup]="uploadForm">
         <div class="form-group">
@@ -43,7 +50,8 @@
                         <h4 class="card-title">Price: {{data.price}}</h4>
                         <p class="card-text">Description: {{data.dataDesc}}</p>
                         <button (click)="buyData(data.dataId,data.price,false)" class="btn btn-primary">Purchase
-                            now</button>
+                            now
+                        </button>
                     </div>
                 </div>
             </div>
@@ -81,7 +89,7 @@
             </div>
             <div class="modal-body">
                 <div *ngIf="isProcessing">
-                    <button class="btn btn-primary" disabled >
+                    <button class="btn btn-info" disabled >
                         <span class="spinner-grow spinner-grow-sm"></span>
                         Transaction Processing..
                       </button>

@@ -20,6 +20,7 @@ export class AppComponent implements OnInit{
 
   /* Layout control */
   uploadForm:FormGroup;
+  activateForm:FormGroup;
   isMlChecked:boolean = false;
   // popUpDisplayStyle = "none";
   isProcessing:Boolean = false;
@@ -36,6 +37,12 @@ export class AppComponent implements OnInit{
         dataDescInput: ['',Validators.required],
         mlCheckbox: [false,[]]
       });
+
+      this.activateForm = this.fb.group({
+        rawDataHashInput: ['',Validators.required]    
+      });
+
+
   }
   
   ngOnInit(){
@@ -132,7 +139,7 @@ export class AppComponent implements OnInit{
 
   uploadData(){
     console.log(`Upload Data`);
-    console.log("this.uploadForm.value: ",this.uploadForm.value);
+    // console.log("this.uploadForm.value: ",this.uploadForm.value);
     const formValue = this.uploadForm.value
    
     // const [dataHash,dataName,price,purchaseMl,dataDesc] = ["hash1","name1",0,false,"desc1"] // testing w/o ML
@@ -149,18 +156,45 @@ export class AppComponent implements OnInit{
       }
     )
     this.resetUploadForm()
-    
-    // do sth on dataHash
+  
+  }
+
+  activeMlService(){
+
+    console.log(`Upload Data`);
+    console.log("this.activateForm.value: ",this.activateForm.value);
+    const formValue = this.activateForm.value
+    const rawDataHash = formValue.rawDataHashInput
+
+    this.controlPopupWindow(true,"")
+    this.contractService.activateMlService(rawDataHash)
+    .then(
+      res=>{
+        const modifiedRes = res+` (Hash: ${rawDataHash}) `
+        this.controlPopupWindow(true,modifiedRes)
+      }
+    )
+
+    this.resetUploadForm()
 
   }
+
+
 
   controlPopupWindow(isPopupOpened:Boolean,res?:String){
     this.isPopupOpened = isPopupOpened
     this.responseResult = res
+
+
+    
   }
 
   resetUploadForm(){
       this.uploadForm.reset()
+  }
+
+  resetActivateFOrm(){
+    this.activateForm.reset()
   }
 
 
