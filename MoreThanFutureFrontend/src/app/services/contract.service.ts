@@ -226,10 +226,9 @@ export class ContractService {
       
       this.isProcessingEvent.emit(true)
 
-       const isMlEnabled = await this.contract.methods.view_ML_status(data_hash).send(
+       const isMlEnabled = await this.contract.methods.view_ML_status(data_hash).call(
           {
             from: fromAddress,
-            value: 0
           }
         )
           .then( (res: any) =>{
