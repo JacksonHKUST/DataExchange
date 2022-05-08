@@ -187,7 +187,7 @@ export class AppComponent implements OnInit{
     const rawDataHash = formValue.rawDataHashInput
 
     this.controlPopupWindow(true,"")
-    this.contractService.activateMlService(rawDataHash)
+    this.contractService.viewMlStatus(rawDataHash)
     .then(
       res=>{
 
