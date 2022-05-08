@@ -1,6 +1,37 @@
 export const testAbi = 
 [
 	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "data_hash",
+				"type": "string"
+			}
+		],
+		"name": "activate_ML_service",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "key_id",
+				"type": "uint256"
+			}
+		],
+		"name": "purchase_ML_API",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -20,23 +51,50 @@ export const testAbi =
 		"type": "event"
 	},
 	{
-		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": false,
+				"internalType": "uint256",
+				"name": "data_id",
+				"type": "uint256"
+			}
+		],
+		"name": "purchaseData",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
-				"name": "",
+				"name": "seller",
 				"type": "address"
 			},
 			{
-				"indexed": false,
 				"internalType": "string",
-				"name": "",
+				"name": "ml_product_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "api_key",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
 				"type": "string"
 			}
 		],
-		"name": "send_data_hash",
-		"type": "event"
+		"name": "upload_ML_API_key",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -44,11 +102,54 @@ export const testAbi =
 				"internalType": "string",
 				"name": "data_hash",
 				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "dataset_name",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "purchase_ML",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "data_description",
+				"type": "string"
 			}
 		],
-		"name": "activate_ML_service",
+		"name": "uploadData",
 		"outputs": [],
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "adminMemberMapping",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -68,32 +169,6 @@ export const testAbi =
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "data_id",
-				"type": "uint256"
-			}
-		],
-		"name": "purchaseData",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "key_id",
-				"type": "uint256"
-			}
-		],
-		"name": "purchase_ML_API",
-		"outputs": [],
-		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -155,69 +230,16 @@ export const testAbi =
 		"type": "function"
 	},
 	{
-		"inputs": [
+		"inputs": [],
+		"name": "view_ml_key_id_list",
+		"outputs": [
 			{
-				"internalType": "string",
-				"name": "data_hash",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "dataset_name",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "purchase_ML",
-				"type": "bool"
-			},
-			{
-				"internalType": "string",
-				"name": "data_description",
-				"type": "string"
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
 			}
 		],
-		"name": "uploadData",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "seller",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "ml_product_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "api_key",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			}
-		],
-		"name": "upload_ML_API_key",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -234,32 +256,6 @@ export const testAbi =
 				"internalType": "bool",
 				"name": "",
 				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "view_contract_balance",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "view_ml_key_id_list",
-		"outputs": [
-			{
-				"internalType": "uint256[]",
-				"name": "",
-				"type": "uint256[]"
 			}
 		],
 		"stateMutability": "view",
@@ -315,9 +311,5 @@ export const testAbi =
 		],
 		"stateMutability": "view",
 		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	}
 ]
