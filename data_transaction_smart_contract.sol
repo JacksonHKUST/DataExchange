@@ -54,7 +54,7 @@ contract data_transaction {
             ML_purchase_status[data_hash] = ml_status(true, msg.sender);
             payable(msg.sender).transfer(msg.value - ml_purchase_fee);
             emit excess_eth_returned(msg.sender, msg.value - ml_purchase_fee);
-            //payable(administrator).transfer(ml_purchase_fee);
+            payable(administrator).transfer(ml_purchase_fee);
         } else {
             ML_purchase_status[data_hash] = ml_status(false, msg.sender);
         }
