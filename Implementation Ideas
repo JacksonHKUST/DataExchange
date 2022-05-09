@@ -1,5 +1,0 @@
-We use Angular for the front-end development and Solidity for the smart contract. 
-
-In our smart contract, a unique id is stored for each incoming data hash and ML API Key. The id is used as the key of a mapping table to a struct which contains data information (data hash, dataset name, seller wallet address, dataset price, dataset description & buyers’ wallet address). This smart contract also contains two public view retrieval functions which are used for our front-end program to retrieve necessary data information for display of data products to our potential customers.
-
-Our front-end program calls the retrieval function to get three arrays consisting of the dataset name, price and description for each data product. Each data product is shown accordingly in our website. For other sub-features, we also designed relevant public view functions in the smart contract for the front-end program to connect in real-time. All dataset buyers and sellers have to do is make use of our website interface to clickthrough the features that they would like to perform. We also established automatic connection with MetaMask Wallet whenever payable function is triggered.
