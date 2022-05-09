@@ -2,7 +2,6 @@
 
 <div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }" >
     <h5>Acitivate ML Service</h5>
-    <h5>Upload Data</h5>
     <form [formGroup]="activateForm">
         <div class="form-group">
             <label>Data hash</label>
@@ -12,6 +11,7 @@
         <button (click)="checkMlStatus()" class="btn btn-primary" [disabled]="!activateForm.valid"> Check Ml status</button>
     </form>
 
+    <h5>Upload Data</h5>
     <form [formGroup]="uploadForm">
         <div class="form-group">
             <label>Data name</label>
