@@ -21,7 +21,7 @@
 
 
 
-<div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }">
+<div class="container p-3 mb-2 bg-dark text-white" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }">
 
     <ng-container *ngIf="activeTab === 'activate'">
         <h5>Acitivate ML Service</h5>
@@ -91,7 +91,7 @@
         <!-- <hr> -->
     </ng-container>
     
-    <ng-container  *ngIf="activeTab === 'purchaseMl'">
+    <ng-container  class="p-3 mb-2 bg-dark text-white" *ngIf="activeTab === 'purchaseMl'">
         <h5>Purchase ML Data</h5>
         <div class="row mlData">
             <ng-template ngFor let-data [ngForOf]="mlDataList" let-i="index">

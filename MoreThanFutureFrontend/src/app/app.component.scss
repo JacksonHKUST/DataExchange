@@ -1,3 +1,15 @@
 .blur {
     filter: blur(3px);
   }
+
+.container{
+width: 60%;
+// justify-content: start;
+float:left;
+// color: white;
+}
+
+.card-body{
+  background-color: black;
+  color: white;
+}

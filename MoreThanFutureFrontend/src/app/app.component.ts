@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { ContractService } from './services/contract.service';
@@ -8,7 +8,7 @@ import { ContractService } from './services/contract.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit, AfterViewInit{
   userAddress = ""
 
   rawIdList:Number[] = [];
@@ -31,7 +31,8 @@ export class AppComponent implements OnInit{
 
 
   constructor(private contractService:ContractService,
-    private fb:FormBuilder) {
+    private fb:FormBuilder,
+    private elementRef: ElementRef) {
       this.uploadForm = this.fb.group({
         dataNameInput: ['',Validators.required],
         dataHashInput: ['',Validators.required],
@@ -45,6 +46,12 @@ export class AppComponent implements OnInit{
       });
 
 
+  }
+  ngAfterViewInit(): void {
+  
+      this.elementRef.nativeElement.ownerDocument
+          .body.style.backgroundColor = 'black';
+  
   }
   
   ngOnInit(){
