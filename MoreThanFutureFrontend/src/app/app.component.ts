@@ -22,6 +22,8 @@ export class AppComponent implements OnInit{
   uploadForm:FormGroup;
   activateForm:FormGroup;
   isMlChecked:boolean = false;
+  activeTabList:String[] = ['activate','uploadData','purchaseRaw','purchaseMl']
+  activeTab?:String =   this.activeTabList[0];
   // popUpDisplayStyle = "none";
   isProcessing:Boolean = false;
   isPopupOpened:Boolean = false;
@@ -46,7 +48,7 @@ export class AppComponent implements OnInit{
   }
   
   ngOnInit(){
-  this.initRawData()
+  this.initData()
   this.contractService.isProcessingEvent.subscribe(
     (isProcessing:boolean)=>{
       console.log("getting isProcessing from event: ", isProcessing);
@@ -62,7 +64,7 @@ export class AppComponent implements OnInit{
   }
 
 
-  private initRawData(){
+  private initData(){
     this.contractService.getIdList(false).then(
       idList =>{
         console.log("idList: ",idList);
@@ -213,10 +215,20 @@ export class AppComponent implements OnInit{
       this.uploadForm.reset()
   }
 
-  resetActivateFOrm(){
+  resetActivateForm(){
     this.activateForm.reset()
   }
 
+
+  switchTab(tabName:String){
+    if(this.activeTabList.includes(tabName)){
+      this.activeTab = tabName
+      // const index = this.activeTabList.indexOf(tabName)
+      // this.activeTab = this.activeTabList[index]
+      // this.initData()
+    }
+    
+  }
 
 
 }

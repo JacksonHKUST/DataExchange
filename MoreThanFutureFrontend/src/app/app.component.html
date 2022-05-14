@@ -1,88 +1,116 @@
 <!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link" (click)="switchTab('activate')" [ngClass]="{'active':activeTab==='activate'}" aria-current="page" href="#">Active</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" (click)="switchTab('uploadData')" [ngClass]="{'active':activeTab==='uploadData'}" href="#">Upload</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" (click)="switchTab('purchaseRaw')" [ngClass]="{'active':activeTab==='purchaseRaw'}" href="#">Purchase Raw Data</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"  (click)="switchTab('purchaseMl')" [ngClass]="{'active':activeTab==='purchaseMl'}" href="#" >Purchase ML Data</a>
+    </li>
+</ul>
 
-<div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }" >
-    <h5>Acitivate ML Service</h5>
-    <form [formGroup]="activateForm">
-        <div class="form-group">
-            <label>Data hash</label>
-            <input type="text" class="form-control" formControlName="rawDataHashInput">
-        </div>
-        <button (click)="activeMlService()" class="btn btn-primary" [disabled]="!activateForm.valid"> Activate</button>
-        <button (click)="checkMlStatus()" class="btn btn-primary" [disabled]="!activateForm.valid"> Check Ml status</button>
-    </form>
 
-    <h5>Upload Data</h5>
-    <form [formGroup]="uploadForm">
-        <div class="form-group">
-            <label>Data name</label>
-            <input type="text" class="form-control" formControlName="dataNameInput">
-        </div>
-        <div class="form-group">
-            <label>Data hash</label>
-            <input type="text" class="form-control" formControlName="dataHashInput">
-        </div>
-        <div class="form-group">
-            <label>Price (in wei)</label>
-            <input type="number" inputmode="numeric" class="form-control" formControlName="priceInput">
-        </div>
-        <div class="form-group">
-            <label>Data description</label>
-            <textarea class="form-control" formControlName="dataDescInput" rows="3"></textarea>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" formControlName="mlCheckbox" [value]="isMlChecked"
-                (change)="onCheckboxChange($event)">
-            <label class="form-check-label" for="isMlCheckbox">
-                Purchase ML Service
-            </label>
-        </div>
-        <button (click)="uploadData()" class="btn btn-primary" [disabled]="!uploadForm.valid"> Upload Data</button>
-    </form>
 
-    <hr>
-    <h5>Purchase Raw Data</h5>
-    <div class="row rawData">
-        <ng-template ngFor let-data [ngForOf]="rawDataList" let-i="index">
-            <div class="col-sm-6 py-2">
-                <div class="card h-100 border-primary">
-                    <div class="card-body">
-                        <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
-                        <h4 class="card-title">Data name: {{data.dataName}}</h4>
-                        <h4 class="card-title">Price: {{data.price}}</h4>
-                        <p class="card-text">Description: {{data.dataDesc}}</p>
-                        <button (click)="buyData(data.dataId,data.price,false)" class="btn btn-primary">Purchase
-                            now
-                        </button>
+
+<div class="container" [ngStyle]="{'filter': isPopupOpened? 'blur(3px)':'blur(0px)' }">
+
+    <ng-container *ngIf="activeTab === 'activate'">
+        <h5>Acitivate ML Service</h5>
+        <form [formGroup]="activateForm">
+            <div class="form-group">
+                <label>Data hash</label>
+                <input type="text" class="form-control" formControlName="rawDataHashInput">
+            </div>
+            <button (click)="activeMlService()" class="btn btn-primary" [disabled]="!activateForm.valid">
+                Activate</button>
+            <button (click)="checkMlStatus()" class="btn btn-primary" [disabled]="!activateForm.valid"> Check Ml
+                status</button>
+        </form>
+    </ng-container>
+
+    <ng-container *ngIf="activeTab === 'uploadData'">
+        <h5>Upload Data</h5>
+        <form [formGroup]="uploadForm">
+            <div class="form-group">
+                <label>Data name</label>
+                <input type="text" class="form-control" formControlName="dataNameInput">
+            </div>
+            <div class="form-group">
+                <label>Data hash</label>
+                <input type="text" class="form-control" formControlName="dataHashInput">
+            </div>
+            <div class="form-group">
+                <label>Price (in wei)</label>
+                <input type="number" inputmode="numeric" class="form-control" formControlName="priceInput">
+            </div>
+            <div class="form-group">
+                <label>Data description</label>
+                <textarea class="form-control" formControlName="dataDescInput" rows="3"></textarea>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" formControlName="mlCheckbox"
+                    [value]="isMlChecked" (change)="onCheckboxChange($event)">
+                <label class="form-check-label" for="isMlCheckbox">
+                    Purchase ML Service
+                </label>
+            </div>
+            <button (click)="uploadData()" class="btn btn-primary" [disabled]="!uploadForm.valid"> Upload Data</button>
+        </form>
+        <!-- <hr> -->
+    </ng-container>
+
+
+    <ng-container  *ngIf="activeTab === 'purchaseRaw'">
+        <h5>Purchase Raw Data</h5>
+        <div class="row rawData">
+            <ng-template ngFor let-data [ngForOf]="rawDataList" let-i="index">
+                <div class="col-sm-6 py-2">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
+                            <h4 class="card-title">Data name: {{data.dataName}}</h4>
+                            <h4 class="card-title">Price: {{data.price}}</h4>
+                            <p class="card-text">Description: {{data.dataDesc}}</p>
+                            <button (click)="buyData(data.dataId,data.price,false)" class="btn btn-primary">Purchase
+                                now
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </ng-template>
-
-    </div>
-    <hr>
-    <h5>Purchase ML Data</h5>
-    <div class="row mlData">
-        <ng-template ngFor let-data [ngForOf]="mlDataList" let-i="index">
-            <div class="col-sm-6 py-2">
-                <div class="card h-100 border-primary">
-                    <div class="card-body">
-                        <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
-                        <h4 class="card-title">Data name: {{data.dataName}}</h4>
-                        <h4 class="card-title">Price: {{data.price}}</h4>
-                        <p class="card-text">Description: {{data.dataDesc}}</p>
-                        <button (click)="buyData(data.dataId,data.price,true)" class="btn btn-primary">Purchase
-                            now</button>
+            </ng-template>
+        </div>
+        <!-- <hr> -->
+    </ng-container>
+    
+    <ng-container  *ngIf="activeTab === 'purchaseMl'">
+        <h5>Purchase ML Data</h5>
+        <div class="row mlData">
+            <ng-template ngFor let-data [ngForOf]="mlDataList" let-i="index">
+                <div class="col-sm-6 py-2">
+                    <div class="card h-100 border-primary">
+                        <div class="card-body">
+                            <!-- <h3 class="card-title">{{data.dataId}}</h3> -->
+                            <h4 class="card-title">Data name: {{data.dataName}}</h4>
+                            <h4 class="card-title">Price: {{data.price}}</h4>
+                            <p class="card-text">Description: {{data.dataDesc}}</p>
+                            <button (click)="buyData(data.dataId,data.price,true)" class="btn btn-primary">Purchase
+                                now</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </ng-template>
+            </ng-template>
 
-    </div>
+        </div>
+    </ng-container>
 
- 
 </div>
 
-<div class="modal" tabindex="-1" role="dialog"[ngStyle]="{'display':  isPopupOpened? 'block':'none'}" >
+<div class="modal" tabindex="-1" role="dialog" [ngStyle]="{'display':  isPopupOpened? 'block':'none'}">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -90,15 +118,16 @@
             </div>
             <div class="modal-body">
                 <div *ngIf="isProcessing">
-                    <button class="btn btn-info" disabled >
+                    <button class="btn btn-info" disabled>
                         <span class="spinner-grow spinner-grow-sm"></span>
                         Transaction Processing..
-                      </button>
+                    </button>
                 </div>
                 <p>{{responseResult}}</p>
             </div>
             <div class="modal-footer">
-                <button (click)="controlPopupWindow(false,'')" class="btn btn-primary" [disabled]="isProcessing"> Close</button>
+                <button (click)="controlPopupWindow(false,'')" class="btn btn-primary" [disabled]="isProcessing">
+                    Close</button>
             </div>
         </div>
     </div>
