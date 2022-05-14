@@ -1,16 +1,20 @@
 <!-- <button (click)= "linkWallet()"> Connect Wallet</button> -->
 <ul class="nav nav-tabs">
     <li class="nav-item">
-        <a class="nav-link" (click)="switchTab('activate')" [ngClass]="{'active':activeTab==='activate'}" aria-current="page" href="#">Active</a>
+        <a class="nav-link" (click)="switchTab('uploadData')" [ngClass]="{'active':activeTab==='uploadData'}" href="#">
+            Upload</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" (click)="switchTab('uploadData')" [ngClass]="{'active':activeTab==='uploadData'}" href="#">Upload</a>
+        <a class="nav-link" (click)="switchTab('activate')" [ngClass]="{'active':activeTab==='activate'}" aria-current="page" href="#">
+            Activate</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" (click)="switchTab('purchaseRaw')" [ngClass]="{'active':activeTab==='purchaseRaw'}" href="#">Purchase Raw Data</a>
+        <a class="nav-link" (click)="switchTab('purchaseRaw')" [ngClass]="{'active':activeTab==='purchaseRaw'}" href="#">
+            Purchase Raw Data</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link"  (click)="switchTab('purchaseMl')" [ngClass]="{'active':activeTab==='purchaseMl'}" href="#" >Purchase ML Data</a>
+        <a class="nav-link"  (click)="switchTab('purchaseMl')" [ngClass]="{'active':activeTab==='purchaseMl'}" href="#" >
+            Purchase ML Data</a>
     </li>
 </ul>
 

@@ -22,7 +22,7 @@ export class AppComponent implements OnInit{
   uploadForm:FormGroup;
   activateForm:FormGroup;
   isMlChecked:boolean = false;
-  activeTabList:String[] = ['activate','uploadData','purchaseRaw','purchaseMl']
+  activeTabList:String[] = ['uploadData','activate','purchaseRaw','purchaseMl']
   activeTab?:String =   this.activeTabList[0];
   // popUpDisplayStyle = "none";
   isProcessing:Boolean = false;
