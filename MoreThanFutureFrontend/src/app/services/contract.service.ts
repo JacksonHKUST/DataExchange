@@ -117,8 +117,9 @@ export class ContractService {
 
 
   public purchaseData = async (dataId: Number, price: Number,isMl:boolean, inputAddress?: String) => {
-    let dataResult;
+    this.isProcessingEvent.emit(true)
 
+    let dataResult;
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
 
@@ -131,7 +132,7 @@ export class ContractService {
       else{
       contractMethod = this.contract.methods.purchaseData
       }
-        this.isProcessingEvent.emit(true)
+      // this.isProcessingEvent.emit(true)
       // const purchaseResult = await this.contract.methods.purchaseData(dataId).send(
         const purchaseResult = await contractMethod(dataId).send(
         {
@@ -189,12 +190,14 @@ export class ContractService {
 
 
   public activateMlService = async (data_hash: String,inputAddress?: String) => {
+
+    this.isProcessingEvent.emit(true)
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
 
       console.log("data_hash: ",data_hash);
       
-      this.isProcessingEvent.emit(true)
+      // this.isProcessingEvent.emit(true)
 
        await this.contract.methods.activate_ML_service(data_hash).send(
           {
@@ -219,12 +222,13 @@ export class ContractService {
 
 
   public viewMlStatus = async (data_hash: String,inputAddress?: String) => {
+    this.isProcessingEvent.emit(true)
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
 
       console.log("data_hash: ",data_hash);
       
-      this.isProcessingEvent.emit(true)
+      // this.isProcessingEvent.emit(true)
       let isMlEnabled = false
        await this.contract.methods.view_ML_status(data_hash).call(
           {
@@ -256,6 +260,7 @@ export class ContractService {
 
 
   public uploadData = async (data_hash: String, dataName:String,price: Number, purchaseMl: boolean, dataDesc:String,inputAddress?: String) => {
+    this.isProcessingEvent.emit(true)
     try {
       let fromAddress = await this.validateInputAddress(inputAddress);
       // uploadResult = this.contract.methods.upload_ML_API_key(fromAddress, dataName,data_hash,price,dataDesc).send(
@@ -267,7 +272,7 @@ export class ContractService {
 
       console.log("data_hash, dataName,price, purchaseMl,dataDesc,",data_hash, dataName,price, purchaseMl,dataDesc);
       
-      this.isProcessingEvent.emit(true)
+      // this.isProcessingEvent.emit(true)
 
        await this.contract.methods.uploadData(data_hash, dataName,price, purchaseMl,dataDesc).send(
           {
